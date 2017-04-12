@@ -10,6 +10,15 @@
       ]
     },
     {
+      "intent": "GoToIntent",
+      "slots": [
+        {
+          "name": "Number",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
       "intent": "AMAZON.RepeatIntent"
     },
     {
@@ -23,6 +32,12 @@
     },
     {
       "intent": "NextStepIntent"
+    },
+    {
+      "intent": "MainMenuIntent"
+    },
+    {
+      "intent": "StartOverIntent"
     }
   ]
 }

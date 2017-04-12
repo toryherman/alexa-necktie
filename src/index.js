@@ -19,7 +19,6 @@ let itemName;
 
 const handlers = {
     'NewSession': function () {
-        this.attributes.i = 0;
         this.attributes.speechOutput = this.t('WELCOME_MESSAGE', this.t('SKILL_NAME'));
         // If the user either does not reply to the welcome message or says something that is not
         // understood, they will be prompted again with this text.
@@ -27,9 +26,21 @@ const handlers = {
         this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
     },
     'RecipeIntent': function () {
-        const itemSlot = this.event.request.intent.slots.Item;
+        this.attributes.i = 0;
+        let itemSlot = this.event.request.intent.slots.Item;
+
         if (itemSlot && itemSlot.value) {
             itemName = itemSlot.value.toLowerCase();
+        }
+
+        if (itemName == 'windsor' | itemName == 'full windsor' | itemName == 'full windsor knot' | itemName == 'double windsor' | itemName == 'double windsor knot') {
+            itemName = 'windsor knot';
+        } else if (itemName == 'half windsor' | itemName == 'single windsor' | itemName == 'single windsor knot') {
+            itemName = 'half windsor knot';
+        } else if (itemName == 'pratt' | itemName == 'shelby' | itemName == 'shelby knot' | itemName == 'pratt shelby' | itemName == 'pratt shelby knot') {
+            itemName = 'pratt knot';
+        } else if (itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
+            itemName = 'four in hand knot';
         }
 
         const myRecipes = this.t('RECIPES');
@@ -44,10 +55,13 @@ const handlers = {
                 this.attributes.speechOutput = recipe[i];
                 this.attributes.repromptSpeech = this.t('RECIPE_REPEAT_MESSAGE');
                 this.emit(':ask', recipe[i], this.attributes.repromptSpeech);
-            } else {
+            } else if (i == recipe.length){
                 const cardTitle = this.t('DISPLAY_CARD_TITLE', this.t('SKILL_NAME'), itemName);
                 this.attributes.i = 0;
                 this.emit(':tell', this.t('RECIPE_COMPLETE') + itemName); // cardTitle, cardContent, imageObj
+            } else {
+                this.emit(':ask', this.t('NO_STEP') + ' ' + this.t('HELP_MESSAGE'), this.t('HELP_REPROMPT'));
+                // this.emit('NewSession');
             }
         } else {
             let speechOutput = this.t('RECIPE_NOT_FOUND_MESSAGE');
@@ -67,6 +81,17 @@ const handlers = {
     },
     'NextStepIntent': function () {
         this.attributes.i++;
+        this.emit('GetRecipe');
+    },
+    'StartOverIntent': function () {
+        this.attributes.i = 0;
+        this.emit('GetRecipe');
+    },
+    'MainMenuIntent': function () {
+        this.emit('NewSession');
+    },
+    'GoToIntent': function () {
+        this.attributes.i = this.event.request.intent.slots.Number.value - 1;
         this.emit('GetRecipe');
     },
     'AMAZON.HelpIntent': function () {
@@ -105,7 +130,8 @@ const languageStrings = {
             RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the recipe for %s. ',
             RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that recipe. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
-            RECIPE_COMPLETE: 'Congratulations, you have tied a '
+            RECIPE_COMPLETE: 'Congratulations, you have tied a ',
+            NO_STEP: 'I\'m sorry, that is not a valid step.'
         }
     }
 };

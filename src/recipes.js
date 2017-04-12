@@ -4,7 +4,7 @@ module.exports = {
   RECIPE_EN_US: {
     'windsor knot':
       [
-        'Now beginning instructions for tying a windsor knot. When you are ready, you can say okay or next.',
+        'A windsor knot, also known as a full or double windsor, is a wide, symmetrical knot. When you are ready to begin, you can say okay or next.',
         'Begin with the wide end of the tie on your right hand side, the narrow end on the left.',
         'Align the tip of the narrow end slightly above your belly button. You may need to adjust this alignment based on both your size and the length of the tie.',
         'Cross the wide end over the narrow end to the left.',
@@ -17,7 +17,7 @@ module.exports = {
       ],
     'four in hand knot':
       [
-        'Now beginning instructions for tying a four in hand knot. When you are ready, you can say okay or next.',
+        'A four in hand knot, also known as a simple or schoolboy knot, is a narrow, asymmetrical knot. When you are ready to begin, you can say okay or next.',
         'Begin with the wide end of the tie on your right hand side, the narrow end on the left.',
         'Align the tip of the narrow end slightly above your belly button. You may need to adjust this alignment based on both your size and the length of the tie.',
         'Cross the wide end over the narrow end to the left.',
@@ -28,7 +28,7 @@ module.exports = {
       ],
     'half windsor knot':
       [
-        'Now beginning instructions for tying a half windsor knot. When you are ready, you can say okay or next.',
+        'A half windsor knot, also known as a single windsor, is a medium width, symmetrical knot. When you are ready to begin, you can say okay or next.',
         'Begin with the wide end of the tie on your right hand side, the narrow end on the left.',
         'Align the tip of the narrow end slightly above your belly button. You may need to adjust this alignment based on both your size and the length of the tie.',
         'Cross the wide end over the narrow end to the left.',
@@ -40,7 +40,7 @@ module.exports = {
       ],
     'pratt knot':
       [
-        'Now beginning instructions for tying a pratt knot. When you are ready, you can say okay or next.',
+        'A pratt knot, also known as a shelby, is a medium width, symmetrical knot. When you are ready to begin, you can say okay or next.',
         'Begin with the backside of your tie facing forward, the wide end of the tie on your right hand side, and the narrow end on the left.',
         'Align the tip of the narrow end slightly above your belly button. You may need to adjust this alignment based on both your size and the length of the tie.',
         'Cross the wide end under the narrow end to the left.',

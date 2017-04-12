@@ -17,3 +17,9 @@ RecipeIntent how is a {Item} tied
 NextStepIntent okay
 NextStepIntent next
 NextStepIntent next step
+StartOverIntent start over
+StartOverIntent restart
+MainMenuIntent main menu
+MainMenuIntent menu
+GoToIntent go to {Number}
+GoToIntent go to step {Number}
