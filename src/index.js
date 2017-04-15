@@ -29,7 +29,7 @@ const newSessionHandlers = {
       // If the user either does not reply to the welcome message or says something that is not
       // understood, they will be prompted again with this text.
       this.attributes.repromptSpeech = this.t('WELCOME_REPROMPT');
-      this.emitWithState(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+      this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
   },
   'AMAZON.HelpIntent': function () {
       this.attributes.speechOutput = this.t('HELP_MESSAGE');
@@ -44,6 +44,9 @@ const newSessionHandlers = {
   },
   'SessionEndedRequest': function () {
       this.emit(':tell', this.t('STOP_MESSAGE'));
+  },
+  'Unhandled': function () {
+      this.emit('SessionEndedRequest');
   }
 };
 
@@ -72,6 +75,9 @@ const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
 
       this.emitWithState('GetRecipe');
   }
+  // 'Unhandled': function () {
+  //     this.emit('SessionEndedRequest');
+  // }
 });
 
 const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
@@ -109,23 +115,38 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
   },
   'NextStepIntent': function () {
       this.attributes.i++;
-      this.emit('GetRecipe');
+      this.emitWithState('GetRecipe');
   },
   'StartOverIntent': function () {
       this.attributes.i = 0;
-      this.emit('GetRecipe');
+      this.emitWithState('GetRecipe');
   },
   'MainMenuIntent': function () {
       this.handler.state = '';
-      this.emitWithState('NewSession');
+      this.emit('NewSession');
   },
   'GoToIntent': function () {
       this.attributes.i = this.event.request.intent.slots.Number.value;
-      this.emit('GetRecipe');
+      this.emitWithState('GetRecipe');
   },
   'AMAZON.RepeatIntent': function () {
       this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+  },
+  'AMAZON.HelpIntent': function () {
+      this.emit('AMAZON.HelpIntent');
+  },
+  'AMAZON.StopIntent': function () {
+      this.emit('AMAZON.StopIntent');
+  },
+  'AMAZON.CancelIntent': function () {
+      this.emit('AMAZON.CancelIntent');
+  },
+  'SessionEndedRequest': function () {
+      this.emit('SessionEndedRequest');
   }
+  // 'Unhandled': function () {
+  //     this.emit('SessionEndedRequest');
+  // }
 });
 
 const languageStrings = {
@@ -153,7 +174,7 @@ const languageStrings = {
 
 exports.handler = (event, context) => {
     const alexa = Alexa.handler(event, context);
-    alexa.APP_ID = APP_ID;
+    alexa.appId = APP_ID;
     // To enable string internationalization (i18n) features, set a resources object.
     alexa.resources = languageStrings;
     alexa.registerHandlers(newSessionHandlers, startModeHandlers, stepModeHandlers);

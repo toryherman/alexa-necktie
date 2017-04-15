@@ -48,7 +48,7 @@ module.exports = {
         'Step 4. Bring the wide end over and down through the space between your knot and collar.',
         'Step 5. Cross the wide end over the narrow end to the right.',
         'Step 6. Pass the wide end under and up through the space between your knot and collar.',
-        'Step 7. Finally, pass the wide end down through the loop created in the front of the knot.'
+        'Step 7. Finally, pass the wide end down through the loop created in the front of the knot.',
         'Step 8. Tighten the knot by pulling down the wide end. Adjust by holding the narrow end and sliding the knot upward.'
       ]
   },
