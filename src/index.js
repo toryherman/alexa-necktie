@@ -46,7 +46,7 @@ const newSessionHandlers = {
       this.emit(':tell', this.t('STOP_MESSAGE'));
   },
   'Unhandled': function () {
-      this.emit('SessionEndedRequest');
+      this.emit('NewSession');
   }
 };
 
@@ -66,7 +66,7 @@ const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
           itemName = 'half windsor knot';
       } else if (itemName == 'pratt' | itemName == 'shelby' | itemName == 'shelby knot' | itemName == 'pratt shelby' | itemName == 'pratt shelby knot') {
           itemName = 'pratt knot';
-      } else if (itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
+      } else if (itemName == 'tie' | itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
           itemName = 'four in hand knot';
       }
 
@@ -74,10 +74,22 @@ const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
       recipe = myRecipes[itemName];
 
       this.emitWithState('GetRecipe');
+  },
+  'AMAZON.HelpIntent': function () {
+      this.emit('AMAZON.HelpIntent');
+  },
+  'AMAZON.StopIntent': function () {
+      this.emit('AMAZON.StopIntent');
+  },
+  'AMAZON.CancelIntent': function () {
+      this.emit('AMAZON.CancelIntent');
+  },
+  'SessionEndedRequest': function () {
+      this.emit('SessionEndedRequest');
+  },
+  'Unhandled': function () {
+      this.emit('Unhandled');
   }
-  // 'Unhandled': function () {
-  //     this.emit('SessionEndedRequest');
-  // }
 });
 
 const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
@@ -86,15 +98,18 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
           let i = this.attributes.i;
           if (recipe[i]) {
               this.attributes.speechOutput = recipe[i];
-              this.attributes.repromptSpeech = this.t('RECIPE_REPEAT_MESSAGE');
+              this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE');
               this.emit(':ask', recipe[i], this.attributes.repromptSpeech);
           } else if (i == recipe.length){
+              const cards = this.t('CARDS');
               const cardTitle = this.t('DISPLAY_CARD_TITLE', this.t('SKILL_NAME'), itemName);
+              const cardContent = cards[itemName];
               this.attributes.i = 0;
-              this.emit(':tell', this.t('RECIPE_COMPLETE') + itemName); // cardTitle, cardContent, imageObj
+              this.attributes.speechOutput = this.t('RECIPE_COMPLETE') + itemName;
+              this.emit(':tellWithCard', this.attributes.speechOutput, cardTitle, cardContent); // cardTitle, cardContent, imageObj
           } else {
-            this.attributes.speechOutput = this.t('NO_STEP') + ' ' + this.t('HELP_MESSAGE');
-            this.attributes.repromptSpeech = this.t('HELP_REPROMPT');
+              this.attributes.speechOutput = this.t('NO_STEP') + ' ' + this.t('HELP_MESSAGE');
+              this.attributes.repromptSpeech = this.t('HELP_REPROMPT');
               this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
           }
       } else {
@@ -133,7 +148,9 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
       this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
   },
   'AMAZON.HelpIntent': function () {
-      this.emit('AMAZON.HelpIntent');
+      this.attributes.speechOutput = this.t('RECIPE_HELP_MESSAGE');
+      this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE');
+      this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
   },
   'AMAZON.StopIntent': function () {
       this.emit('AMAZON.StopIntent');
@@ -143,10 +160,12 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
   },
   'SessionEndedRequest': function () {
       this.emit('SessionEndedRequest');
+  },
+  'Unhandled': function () {
+      this.attributes.speechOutput = this.t('NO_STEP') + ' ' + this.t('RECIPE_HELP_MESSAGE');
+      this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE') + ' ' + this.t('RECIPE_REPROMPT');
+      this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
   }
-  // 'Unhandled': function () {
-  //     this.emit('SessionEndedRequest');
-  // }
 });
 
 const languageStrings = {
@@ -155,19 +174,20 @@ const languageStrings = {
             RECIPES: recipes.RECIPE_EN_US,
             CARDS: recipes.CARDS,
             SKILL_NAME: 'Necktie',
-            WELCOME_MESSAGE: "Welcome to %s. You can ask a question like, how do I tie a windsor knot? ... Now, what can I help you with.",
+            WELCOME_MESSAGE: "Welcome to %s. I can help you tie a windsor, half windsor, four in hand, or pratt knot ... Now, what can I help you with.",
             WELCOME_REPROMPT: 'For instructions on what you can say, please say help me.',
             DISPLAY_CARD_TITLE: '%s  - Instructions for %s.',
-            HELP_MESSAGE: "You can ask questions such as, how do I tie a windsor knot, or, you can say exit...Now, what can I help you with?",
-            HELP_REPROMPT: "You can say things like, how do I tie a windsor knot, or you can say exit...Now, what can I help you with?",
+            HELP_MESSAGE: "You can ask questions such as, how do I tie a windsor knot, or, you can say exit ... Now, what can I help you with?",
+            HELP_REPROMPT: "You can say things like, how do I tie a windsor knot, or you can say exit ... Now, what can I help you with?",
             STOP_MESSAGE: 'Goodbye!',
-            RECIPE_REPEAT_MESSAGE: 'You can say repeat to hear the step again, or okay to move on.',
+            RECIPE_HELP_MESSAGE: 'You can say repeat to hear the step again, okay to move on, or start over.',
+            RECIPE_REPROMPT: 'You can say main menu to choose another knot.',
             RECIPE_NOT_FOUND_MESSAGE: "I\'m sorry, I currently do not know ",
-            RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the recipe for %s. ',
-            RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that recipe. ',
+            RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the instructions for %s. ',
+            RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that knot. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
             RECIPE_COMPLETE: 'Congratulations, you have tied a ',
-            NO_STEP: 'I\'m sorry, that is not a valid step.'
+            NO_STEP: 'I\'m sorry, that is not a valid step.',
         }
     }
 };
