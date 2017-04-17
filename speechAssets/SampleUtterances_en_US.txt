@@ -9,15 +9,24 @@ RecipeIntent how do you tie {Item}
 RecipeIntent how do you tie a {Item}
 RecipeIntent how can I tie {Item}
 RecipeIntent how can I tie a {Item}
+RecipeIntent teach me to tie {Item}
+RecipeIntent teach me to tie a {Item}
 RecipeIntent teach me how to tie {Item}
 RecipeIntent teach me how to tie a {Item}
 RecipeIntent teach me how to tie a {Item}
 RecipeIntent how is {Item} tied
 RecipeIntent how is a {Item} tied
 NextStepIntent okay
+NextStepIntent got it
+NextStepIntent next
+NextStepIntent next step
 StartOverIntent start over
 StartOverIntent restart
 MainMenuIntent main menu
 MainMenuIntent menu
 GoToIntent go to {Number}
 GoToIntent go to step {Number}
+AMAZON.RepeatIntent repeat that step
+AMAZON.RepeatIntent say that again
+AMAZON.RepeatIntent say that one more time
+AMAZON.RepeatIntent one more time

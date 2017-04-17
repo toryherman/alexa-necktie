@@ -46,7 +46,19 @@ const newSessionHandlers = {
       this.emit(':tell', this.t('STOP_MESSAGE'));
   },
   'Unhandled': function () {
-      this.emit('NewSession');
+      let speechOutput = this.t('RECIPE_NOT_FOUND_MESSAGE');
+      const repromptSpeech = this.t('RECIPE_NOT_FOUND_REPROMPT');
+      if (itemName) {
+          speechOutput += this.t('RECIPE_NOT_FOUND_WITH_ITEM_NAME', itemName);
+      } else {
+          speechOutput += this.t('RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME');
+      }
+      speechOutput += repromptSpeech;
+
+      this.attributes.speechOutput = speechOutput;
+      this.attributes.repromptSpeech = repromptSpeech;
+
+      this.emit(':ask', speechOutput, repromptSpeech);;
   }
 };
 
@@ -93,6 +105,11 @@ const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
 });
 
 const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
+  'RecipeIntent': function () {
+      this.attributes.speechOutput = this.t('RECIPE_HELP_REPROMPT') + " otherwise " + this.t('RECIPE_HELP_MESSAGE');
+      this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE');
+      this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+  },
   'GetRecipe': function () {
       if (recipe) {
           let i = this.attributes.i;
@@ -145,7 +162,7 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
       this.emitWithState('GetRecipe');
   },
   'AMAZON.RepeatIntent': function () {
-      this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+      this.emitWithState('GetRecipe');
   },
   'AMAZON.HelpIntent': function () {
       this.attributes.speechOutput = this.t('RECIPE_HELP_MESSAGE');
@@ -163,7 +180,7 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
   },
   'Unhandled': function () {
       this.attributes.speechOutput = this.t('NO_STEP') + ' ' + this.t('RECIPE_HELP_MESSAGE');
-      this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE') + ' ' + this.t('RECIPE_REPROMPT');
+      this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE') + ' ' + this.t('RECIPE_HELP_REPROMPT');
       this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
   }
 });
@@ -181,13 +198,13 @@ const languageStrings = {
             HELP_REPROMPT: "You can say things like, how do I tie a windsor knot, or you can say exit ... Now, what can I help you with?",
             STOP_MESSAGE: 'Goodbye!',
             RECIPE_HELP_MESSAGE: 'You can say repeat to hear the step again, okay to move on, or start over.',
-            RECIPE_REPROMPT: 'You can say main menu to choose another knot.',
+            RECIPE_HELP_REPROMPT: 'You can say main menu to choose another knot.',
             RECIPE_NOT_FOUND_MESSAGE: "I\'m sorry, I currently do not know ",
             RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the instructions for %s. ',
             RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that knot. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
             RECIPE_COMPLETE: 'Congratulations, you have tied a ',
-            NO_STEP: 'I\'m sorry, that is not a valid step.',
+            NO_STEP: 'I\'m sorry, that is not a valid step.'
         }
     }
 };
