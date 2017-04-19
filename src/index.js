@@ -23,13 +23,37 @@ const states = {
 };
 
 const newSessionHandlers = {
-  'NewSession': function () {
+  'LaunchRequest': function () {
       this.handler.state = states.STARTMODE;
       this.attributes.speechOutput = this.t('WELCOME_MESSAGE', this.t('SKILL_NAME'));
       // If the user either does not reply to the welcome message or says something that is not
       // understood, they will be prompted again with this text.
       this.attributes.repromptSpeech = this.t('WELCOME_REPROMPT');
       this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+  },
+  'RecipeIntent': function () {
+      this.handler.state = states.STEPMODE;
+      this.attributes.i = 0;
+      let itemSlot = this.event.request.intent.slots.Item;
+
+      if (itemSlot && itemSlot.value) {
+          itemName = itemSlot.value.toLowerCase();
+      }
+
+      if (itemName == 'windsor' | itemName == 'full windsor' | itemName == 'full windsor knot' | itemName == 'double windsor' | itemName == 'double windsor knot') {
+          itemName = 'windsor knot';
+      } else if (itemName == 'half windsor' | itemName == 'single windsor' | itemName == 'single windsor knot') {
+          itemName = 'half windsor knot';
+      } else if (itemName == 'pratt' | itemName == 'shelby' | itemName == 'shelby knot' | itemName == 'pratt shelby' | itemName == 'pratt shelby knot') {
+          itemName = 'pratt knot';
+      } else if (itemName == 'tie' | itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
+          itemName = 'four in hand knot';
+      }
+
+      const myRecipes = this.t('RECIPES');
+      recipe = myRecipes[itemName];
+
+      this.emitWithState('GetRecipe');
   },
   'AMAZON.HelpIntent': function () {
       this.attributes.speechOutput = this.t('HELP_MESSAGE');
@@ -58,34 +82,13 @@ const newSessionHandlers = {
       this.attributes.speechOutput = speechOutput;
       this.attributes.repromptSpeech = repromptSpeech;
 
-      this.emit(':ask', speechOutput, repromptSpeech);;
+      this.emit(':ask', speechOutput, repromptSpeech);
   }
 };
 
 const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
   'RecipeIntent': function () {
-      this.handler.state = states.STEPMODE;
-      this.attributes.i = 0;
-      let itemSlot = this.event.request.intent.slots.Item;
-
-      if (itemSlot && itemSlot.value) {
-          itemName = itemSlot.value.toLowerCase();
-      }
-
-      if (itemName == 'windsor' | itemName == 'full windsor' | itemName == 'full windsor knot' | itemName == 'double windsor' | itemName == 'double windsor knot') {
-          itemName = 'windsor knot';
-      } else if (itemName == 'half windsor' | itemName == 'single windsor' | itemName == 'single windsor knot') {
-          itemName = 'half windsor knot';
-      } else if (itemName == 'pratt' | itemName == 'shelby' | itemName == 'shelby knot' | itemName == 'pratt shelby' | itemName == 'pratt shelby knot') {
-          itemName = 'pratt knot';
-      } else if (itemName == 'tie' | itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
-          itemName = 'four in hand knot';
-      }
-
-      const myRecipes = this.t('RECIPES');
-      recipe = myRecipes[itemName];
-
-      this.emitWithState('GetRecipe');
+      this.emit('RecipeIntent');
   },
   'AMAZON.HelpIntent': function () {
       this.emit('AMAZON.HelpIntent');
@@ -114,9 +117,9 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
       if (recipe) {
           let i = this.attributes.i;
           if (recipe[i]) {
-              this.attributes.speechOutput = recipe[i];
+              this.attributes.speechOutput = recipe[i] + this.t('CONTINUE_MESSAGE');
               this.attributes.repromptSpeech = this.t('RECIPE_HELP_MESSAGE');
-              this.emit(':ask', recipe[i], this.attributes.repromptSpeech);
+              this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
           } else if (i == recipe.length){
               const cards = this.t('CARDS');
               const cardTitle = this.t('DISPLAY_CARD_TITLE', this.t('SKILL_NAME'), itemName);
@@ -130,6 +133,7 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
               this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
           }
       } else {
+          this.handler.state = states.STARTMODE;
           let speechOutput = this.t('RECIPE_NOT_FOUND_MESSAGE');
           const repromptSpeech = this.t('RECIPE_NOT_FOUND_REPROMPT');
           if (itemName) {
@@ -154,8 +158,7 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
       this.emitWithState('GetRecipe');
   },
   'MainMenuIntent': function () {
-      this.handler.state = '';
-      this.emit('NewSession');
+      this.emit('LaunchRequest');
   },
   'GoToIntent': function () {
       this.attributes.i = this.event.request.intent.slots.Number.value;
@@ -190,16 +193,17 @@ const languageStrings = {
         translation: {
             RECIPES: recipes.RECIPE_EN_US,
             CARDS: recipes.CARDS,
-            SKILL_NAME: 'Necktie',
-            WELCOME_MESSAGE: "Welcome to %s. I can help you tie a windsor, half windsor, four in hand, or pratt knot ... Now, what can I help you with.",
+            SKILL_NAME: 'Necktie Pro',
+            WELCOME_MESSAGE: 'Welcome to %s. I can help you tie a windsor, half windsor, four in hand, or pratt knot ... Now, what can I help you with.',
             WELCOME_REPROMPT: 'For instructions on what you can say, please say help me.',
             DISPLAY_CARD_TITLE: '%s  - Instructions for %s.',
-            HELP_MESSAGE: "You can ask questions such as, how do I tie a windsor knot, or, you can say exit ... Now, what can I help you with?",
-            HELP_REPROMPT: "You can say things like, how do I tie a windsor knot, or you can say exit ... Now, what can I help you with?",
+            HELP_MESSAGE: 'You can ask questions such as, how do I tie a windsor knot, or, you can say exit ... Now, what can I help you with?',
+            HELP_REPROMPT: 'You can say things like, how do I tie a windsor knot, or you can say exit ... Now, what can I help you with?',
             STOP_MESSAGE: 'Goodbye!',
+            CONTINUE_MESSAGE: ' When you are ready to move on, say okay.',
             RECIPE_HELP_MESSAGE: 'You can say repeat to hear the step again, okay to move on, or start over.',
             RECIPE_HELP_REPROMPT: 'You can say main menu to choose another knot.',
-            RECIPE_NOT_FOUND_MESSAGE: "I\'m sorry, I currently do not know ",
+            RECIPE_NOT_FOUND_MESSAGE: 'I\'m sorry, I currently do not know ',
             RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the instructions for %s. ',
             RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that knot. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
