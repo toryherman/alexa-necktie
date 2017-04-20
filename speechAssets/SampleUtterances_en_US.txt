@@ -16,7 +16,6 @@ RecipeIntent teach me how to tie a {Item}
 RecipeIntent teach me how to tie a {Item}
 RecipeIntent how is {Item} tied
 RecipeIntent how is a {Item} tied
-NextStepIntent okay
 NextStepIntent got it
 NextStepIntent next
 NextStepIntent next step

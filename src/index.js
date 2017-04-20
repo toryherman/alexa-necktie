@@ -14,6 +14,12 @@ const Alexa = require('alexa-sdk');
 const recipes = require('./recipes');
 
 const APP_ID = "amzn1.ask.skill.d5a45154-b2f3-4dd5-bfd5-f916840e2b1f";
+
+const windsors = ['windsor', 'windsor not', 'full windsor', 'full windsor knot', 'full windsor not', 'double windsor', 'double windsor knot', 'double windsor not'];
+const halfs = ['half windsor', 'half windsor not', 'single windsor', 'single windsor knot', 'single windsor not'];
+const pratts = ['pratt', 'pratt not', 'shelby', 'shelby knot', 'shelby not', 'pratt shelby', 'pratt shelby knot', 'pratt shelby not'];
+const simples = ['tie', 'tie knot', 'tie not', '4 in hand', '4 in hand knot', '4 in hand not', 'foreign hand', 'foreign hand knot', 'foreign hand not', 'four in hand', 'four in hand knot', 'four in hand not', 'simple', 'simple knot', 'simple not', 'schoolboy', 'schoolboy knot', 'schoolboy not', 'for in hand', 'for in hand knot', 'for in hand not'];
+
 let recipe;
 let itemName;
 
@@ -30,6 +36,8 @@ const newSessionHandlers = {
       // understood, they will be prompted again with this text.
       this.attributes.repromptSpeech = this.t('WELCOME_REPROMPT');
       this.emit(':ask', this.attributes.speechOutput, this.attributes.repromptSpeech);
+      // console.log('In Launch');
+      // console.log(JSON.stringify(this.event));
   },
   'RecipeIntent': function () {
       this.handler.state = states.STEPMODE;
@@ -40,19 +48,21 @@ const newSessionHandlers = {
           itemName = itemSlot.value.toLowerCase();
       }
 
-      if (itemName == 'windsor' | itemName == 'full windsor' | itemName == 'full windsor knot' | itemName == 'double windsor' | itemName == 'double windsor knot') {
+      if (windsors.indexOf(itemName) !== -1) {
           itemName = 'windsor knot';
-      } else if (itemName == 'half windsor' | itemName == 'single windsor' | itemName == 'single windsor knot') {
+      } else if (halfs.indexOf(itemName) !== -1) {
           itemName = 'half windsor knot';
-      } else if (itemName == 'pratt' | itemName == 'shelby' | itemName == 'shelby knot' | itemName == 'pratt shelby' | itemName == 'pratt shelby knot') {
+      } else if (pratts.indexOf(itemName) !== -1) {
           itemName = 'pratt knot';
-      } else if (itemName == 'tie' | itemName == '4 in hand' | itemName == '4 in hand knot' | itemName == 'four in hand' | itemName == 'simple' | itemName == 'simple knot' | itemName == 'schoolboy' | itemName == 'schoolboy knot') {
+      } else if (simples.indexOf(itemName) !== -1) {
           itemName = 'four in hand knot';
       }
 
       const myRecipes = this.t('RECIPES');
       recipe = myRecipes[itemName];
 
+      // console.log('In RecipeIntent');
+      // console.log(JSON.stringify(this.event));
       this.emitWithState('GetRecipe');
   },
   'AMAZON.HelpIntent': function () {
@@ -148,10 +158,15 @@ const stepModeHandlers = Alexa.CreateStateHandler(states.STEPMODE, {
 
           this.emit(':ask', speechOutput, repromptSpeech);
       }
+
+      // console.log('In GetRecipe');
+      // console.log(JSON.stringify(this.event));
   },
   'NextStepIntent': function () {
       this.attributes.i++;
       this.emitWithState('GetRecipe');
+      // console.log('In NextStepIntent');
+      // console.log(JSON.stringify(this.event));
   },
   'StartOverIntent': function () {
       this.attributes.i = 0;
@@ -200,8 +215,8 @@ const languageStrings = {
             HELP_MESSAGE: 'You can ask questions such as, how do I tie a windsor knot, or, you can say exit ... Now, what can I help you with?',
             HELP_REPROMPT: 'You can say things like, how do I tie a windsor knot, or you can say exit ... Now, what can I help you with?',
             STOP_MESSAGE: 'Goodbye!',
-            CONTINUE_MESSAGE: ' When you are ready to move on, say okay.',
-            RECIPE_HELP_MESSAGE: 'You can say repeat to hear the step again, okay to move on, or start over.',
+            CONTINUE_MESSAGE: ' When you are ready to move on, say next.',
+            RECIPE_HELP_MESSAGE: 'You can say repeat to hear the step again, next to move on, or start over.',
             RECIPE_HELP_REPROMPT: 'You can say main menu to choose another knot.',
             RECIPE_NOT_FOUND_MESSAGE: 'I\'m sorry, I currently do not know ',
             RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the instructions for %s. ',
